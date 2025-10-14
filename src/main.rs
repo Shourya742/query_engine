@@ -3,6 +3,7 @@ use anyhow::Result;
 
 mod binder;
 mod catalog;
+mod optimizer;
 mod parser;
 mod storage;
 mod types;
