@@ -7,7 +7,6 @@ use crate::{
 
 pub static DEFAULT_DATABASE_NAME: &str = "postgres";
 pub static DEFAULT_SCHEMA_NAME: &str = "postgres";
-pub static INTERNAL_SCHEMA_NAME: &str = "pg_catalog";
 
 #[derive(Debug)]
 pub struct BoundTableRef {

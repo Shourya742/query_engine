@@ -13,7 +13,6 @@ mod binary_op;
 pub enum BoundExpr {
     Constant(ScalarValue),
     ColumnRef(BoundColumnRef),
-    InputRef(BoundInputRef),
     BinaryOp(BoundBinaryOp),
 }
 
@@ -24,7 +23,6 @@ impl BoundExpr {
             BoundExpr::ColumnRef(column_ref) => {
                 Some(column_ref.column_catalog.desc.data_type.clone())
             }
-            BoundExpr::InputRef(input_ref) => Some(input_ref.return_type.clone()),
             BoundExpr::BinaryOp(binary_op) => binary_op.return_type.clone(),
         }
     }
