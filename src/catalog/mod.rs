@@ -1,10 +1,27 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::Arc,
+};
 
 use arrow::datatypes::DataType;
+
+pub type RootCatalogRef = Arc<RootCatalog>;
 
 #[derive(Debug, Clone, Default)]
 pub struct RootCatalog {
     pub tables: HashMap<TableId, TableCatalog>,
+}
+
+impl RootCatalog {
+    pub fn new() -> Self {
+        Self {
+            tables: HashMap::new(),
+        }
+    }
+
+    pub fn get_table_by_name(&self, name: &str) -> Option<TableCatalog> {
+        self.tables.get(name).cloned()
+    }
 }
 
 pub type TableId = String;
@@ -14,6 +31,12 @@ pub struct TableCatalog {
     pub id: TableId,
     pub name: String,
     pub columns: BTreeMap<ColumnId, ColumnCatalog>,
+}
+
+impl TableCatalog {
+    pub fn get_column_by_name(&self, name: &str) -> Option<ColumnCatalog> {
+        self.columns.get(name).cloned()
+    }
 }
 
 pub type ColumnId = String;

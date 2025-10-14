@@ -42,6 +42,10 @@ impl Storage for CsvStorage {
             .cloned()
             .ok_or(StorageError::TableNotFound(id))
     }
+
+    fn get_catalog(&self) -> RootCatalog {
+        self.catalog.lock().unwrap().clone()
+    }
 }
 
 #[derive(Clone)]

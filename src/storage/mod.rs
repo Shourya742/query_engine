@@ -3,12 +3,16 @@ use arrow::{error::ArrowError, record_batch::RecordBatch};
 mod csv;
 pub use csv::*;
 
+use crate::catalog::RootCatalog;
+
 pub trait Storage: Sync + Send + 'static {
     type TableType: Table;
 
     fn create_table(&self, id: String, filepath: String) -> Result<(), StorageError>;
 
     fn get_table(&self, id: String) -> Result<Self::TableType, StorageError>;
+
+    fn get_catalog(&self) -> RootCatalog;
 }
 
 pub trait Table: Sync + Send + Clone + 'static {

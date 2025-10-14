@@ -1,8 +1,11 @@
 use crate::storage::{CsvStorage, Storage, Table, Transaction};
 use anyhow::Result;
 
+mod binder;
 mod catalog;
+mod parser;
 mod storage;
+mod types;
 
 #[tokio::main]
 async fn main() -> Result<()> {
