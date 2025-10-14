@@ -1,20 +1,26 @@
-use crate::datasource::{CsvConfig, CsvDataSource};
+use crate::storage::{CsvStorage, Storage, Table, Transaction};
+use anyhow::Result;
 
-mod datasource;
+mod catalog;
+mod storage;
 
 #[tokio::main]
-async fn main() {
-    let cfg = CsvConfig::default();
-    let filename = "./tests/yellow_tripdata_2019-01.csv".to_string();
-    let csv = CsvDataSource::new(filename, &cfg)?;
+async fn main() -> Result<()> {
+    let id = "test".to_string();
+    let filepath = "./tests/sample.csv".to_string();
+    let storage = CsvStorage::default();
+    storage.create_table(id.clone(), filepath)?;
+    let table = storage.get_table(id)?;
+    let mut tx = table.read()?;
+
     let mut total_cnt = 0;
-
-    let stream = csv.execute();
-    #[for_await]
-    for batch in stream {
-        total_cnt += batch?.num_rows();
+    loop {
+        let batch = tx.next_batch()?;
+        match batch {
+            Some(batch) => total_cnt += batch.num_rows(),
+            None => break,
+        }
     }
-
-    println!("total_cnt = {total_cnt:?}");
+    println!("total_cnt = {:?}", total_cnt);
     Ok(())
 }
