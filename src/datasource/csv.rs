@@ -1,13 +1,13 @@
 use std::fs::File;
 
 use arrow::{
-    csv::{Reader, reader},
+    csv::{reader, Reader},
     datatypes::{Schema, SchemaRef},
     error::ArrowError,
 };
 use futures_async_stream::try_stream;
 
-use crate::datasource::BoxedRecordBatchStream;
+use crate::datasource::{BoxedRecordBatchStream, DataSourceError};
 
 pub struct CsvConfig {
     has_header: bool,
@@ -38,7 +38,7 @@ pub struct CsvDataSource {
 }
 
 impl CsvDataSource {
-    pub fn new(filename: String, cfg: &CsvConfig) -> Result<Box<Self>, ArrowError> {
+    pub fn new(filename: String, cfg: &CsvConfig) -> Result<Box<Self>, DataSourceError> {
         let schema = Self::infer_schema(filename.clone(), cfg)?;
         let reader = Self::create_reader(filename, schema.clone(), cfg)?;
         Ok(Box::new(Self {
@@ -47,7 +47,7 @@ impl CsvDataSource {
         }))
     }
 
-    fn infer_schema(filename: String, cfg: &CsvConfig) -> Result<Schema, ArrowError> {
+    fn infer_schema(filename: String, cfg: &CsvConfig) -> Result<Schema, DataSourceError> {
         let mut file = File::open(filename)?;
         let (schema, _) = reader::infer_reader_schema(
             &mut file,
@@ -62,7 +62,7 @@ impl CsvDataSource {
         filename: String,
         schema: Schema,
         cfg: &CsvConfig,
-    ) -> Result<Reader<File>, ArrowError> {
+    ) -> Result<Reader<File>, DataSourceError> {
         let file = File::open(filename)?;
         let reader = Reader::new(
             file,
@@ -79,7 +79,7 @@ impl CsvDataSource {
 }
 
 impl CsvDataSource {
-    #[try_stream(boxed, ok=RecordBatch, error=ArrowError)]
+    #[try_stream(boxed, ok=RecordBatch, error=DataSourceError)]
     async fn do_execute(mut self: Box<Self>) {
         for batch in self.reader {
             yield batch?;
