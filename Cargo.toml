@@ -1,0 +1,11 @@
+[package]
+name = "query-engine"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.100"
+arrow = { version = "13", features = ["prettyprint", "simd"] }
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+futures-async-stream = "0.2.12"
