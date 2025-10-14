@@ -1,3 +1,1 @@
-pub trait PlanNode {}
-
-impl dyn PlanNode {}
+mod plan_node;
