@@ -2,7 +2,18 @@ pub mod dummy;
 pub mod logical_filter;
 pub mod logical_project;
 pub mod logical_table_scan;
+pub mod physical_filter;
+pub mod physical_project;
+pub mod physical_table;
 pub mod plan_node_traits;
+use crate::optimizer::physical_filter::PhysicalFilter;
+use crate::optimizer::physical_project::PhysicalProject;
+use crate::optimizer::physical_table::PhysicalTableScan;
+use crate::optimizer::plan_node::dummy::Dummy;
+use crate::optimizer::plan_node::logical_filter::LogicalFilter;
+use crate::optimizer::plan_node::logical_project::LogicalProject;
+use crate::optimizer::plan_node::logical_table_scan::LogicalTableScan;
+use paste::paste;
 use std::fmt::Debug;
 
 use std::sync::Arc;
@@ -35,7 +46,26 @@ macro_rules! for_all_plan_nodes {
             Dummy,
             LogicalTableScan,
             LogicalProject,
-            LogicalFilter
+            LogicalFilter,
+            PhysicalFilter,
+            PhysicalTableScan,
+            PhysicalProject
         }
     };
 }
+
+macro_rules! impl_downcast_utility {
+    ($($node_name:ident),*) => {
+        impl dyn PlanNode {
+            $(
+                paste! {
+                    pub fn [<as_$node_name:snake>] (&self) -> std::result::Result<&$node_name, ()> {
+                        self.downcast_ref::<$node_name>().ok_or(())
+                    }
+                }
+            )*
+        }
+    };
+}
+
+for_all_plan_nodes! {impl_downcast_utility}

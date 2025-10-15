@@ -17,6 +17,14 @@ impl LogicalTableScan {
     pub fn new(table_id: TableId, columns: Vec<ColumnCatalog>) -> Self {
         Self { table_id, columns }
     }
+
+    pub fn table_id(&self) -> TableId {
+        self.table_id.clone()
+    }
+
+    pub fn column_ids(&self) -> Vec<String> {
+        self.columns.iter().map(|c| c.id.clone()).collect()
+    }
 }
 
 impl PlanNode for LogicalTableScan {
