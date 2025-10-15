@@ -1,9 +1,16 @@
+use std::sync::Arc;
+
 use arrow::{error::ArrowError, record_batch::RecordBatch};
 
 mod csv;
 pub use csv::*;
 
 use crate::catalog::RootCatalog;
+
+#[derive(Clone)]
+pub enum StorageImpl {
+    CsvStorage(Arc<CsvStorage>)
+}
 
 pub trait Storage: Sync + Send + 'static {
     type TableType: Table;

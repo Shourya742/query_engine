@@ -10,7 +10,9 @@ anyhow = "1"
 tokio = { version = "1", features = ["full"] }
 thiserror = "1.0.31"
 arrow = "56.2.0"
-sqlparser = "0.59.0"
+sqlparser = { version = "0.59.0", features = ["serde"] }
 itertools = "0.14.0"
 downcast-rs = "2.0.2"
 paste = "1.0.15"
+futures-async-stream = "0.2.12"
+futures = "0.3.31"
