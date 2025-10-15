@@ -1,5 +1,7 @@
 use crate::for_all_plan_nodes;
 use crate::optimizer::plan_node::dummy::Dummy;
+use crate::optimizer::plan_node::logical_filter::LogicalFilter;
+use crate::optimizer::plan_node::logical_project::LogicalProject;
 use crate::optimizer::plan_node::logical_table_scan::LogicalTableScan;
 
 pub trait WithPlanNodeType {

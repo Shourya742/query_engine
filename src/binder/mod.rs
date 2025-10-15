@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-mod expression;
+pub mod expression;
 pub mod statement;
-mod table;
+pub mod table;
 
 use sqlparser::ast::{Ident, Statement};
 
