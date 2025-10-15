@@ -1,9 +1,9 @@
-use std::fmt;
+use std::{fmt, sync::Arc};
 
 use crate::{
     binder::expression::BoundExpr,
     catalog::ColumnCatalog,
-    optimizer::{plan_node::PlanRef, PlanNode},
+    optimizer::{plan_node::PlanRef, PlanNode, PlanTreeNode},
 };
 
 #[derive(Debug, Clone)]
@@ -23,6 +23,17 @@ impl LogicalFilter {
 impl PlanNode for LogicalFilter {
     fn schema(&self) -> Vec<ColumnCatalog> {
         self.input.schema()
+    }
+}
+
+impl PlanTreeNode for LogicalFilter {
+    fn children(&self) -> Vec<PlanRef> {
+        vec![self.input.clone()]
+    }
+
+    fn clone_with_children(&self, children: Vec<PlanRef>) -> PlanRef {
+        assert_eq!(children.len(), 1);
+        Arc::new(Self::new(self.expr.clone(), children[0].clone()))
     }
 }
 

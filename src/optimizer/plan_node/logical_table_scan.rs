@@ -1,10 +1,10 @@
-use std::fmt;
+use std::{fmt, sync::Arc};
 
 use itertools::Itertools;
 
 use crate::{
     catalog::{ColumnCatalog, TableId},
-    optimizer::plan_node::PlanNode,
+    optimizer::{plan_node::PlanNode, PlanTreeNode},
 };
 
 #[derive(Debug, Clone)]
@@ -22,6 +22,17 @@ impl LogicalTableScan {
 impl PlanNode for LogicalTableScan {
     fn schema(&self) -> Vec<ColumnCatalog> {
         self.columns.clone()
+    }
+}
+
+impl PlanTreeNode for LogicalTableScan {
+    fn children(&self) -> Vec<super::PlanRef> {
+        vec![]
+    }
+
+    fn clone_with_children(&self, children: Vec<super::PlanRef>) -> super::PlanRef {
+        assert!(children.is_empty());
+        Arc::new(self.clone())
     }
 }
 

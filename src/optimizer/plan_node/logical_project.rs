@@ -1,8 +1,9 @@
 use core::fmt;
+use std::sync::Arc;
 
 use crate::{
     binder::expression::BoundExpr,
-    optimizer::{plan_node::PlanRef, PlanNode},
+    optimizer::{plan_node::PlanRef, PlanNode, PlanTreeNode},
 };
 
 #[derive(Debug, Clone)]
@@ -22,6 +23,20 @@ impl LogicalProject {
 impl PlanNode for LogicalProject {
     fn schema(&self) -> Vec<crate::catalog::ColumnCatalog> {
         self.input.schema()
+    }
+}
+
+impl PlanTreeNode for LogicalProject {
+    fn children(&self) -> Vec<PlanRef> {
+        vec![self.input.clone()]
+    }
+
+    fn clone_with_children(&self, children: Vec<PlanRef>) -> PlanRef {
+        assert_eq!(children.len(), 1);
+        Arc::new(Self {
+            exprs: self.exprs.clone(),
+            input: children[0].clone(),
+        })
     }
 }
 
