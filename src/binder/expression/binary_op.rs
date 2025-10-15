@@ -3,7 +3,7 @@ use sqlparser::ast::{BinaryOperator, Expr};
 
 use crate::binder::{expression::BoundExpr, BindError, Binder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BoundBinaryOp {
     pub op: BinaryOperator,
     pub left: Box<BoundExpr>,

@@ -7,9 +7,9 @@ use crate::{
     catalog::ColumnCatalog,
     types::ScalarValue,
 };
-mod binary_op;
+pub mod binary_op;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum BoundExpr {
     Constant(ScalarValue),
     ColumnRef(BoundColumnRef),
@@ -28,12 +28,12 @@ impl BoundExpr {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BoundColumnRef {
     pub column_catalog: ColumnCatalog,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BoundInputRef {
     /// column index in data chunk
     pub index: usize,

@@ -8,8 +8,12 @@ pub trait WithPlanNodeType {
     fn node_type(&self) -> PlanNodeType;
 }
 
+/// impl [`PlanNodeType`] fn for each node.
 macro_rules! enum_plan_node_type {
     ($($node_name:ident),*) => {
+
+        /// each enum value represent a PlanNode struct type, helps us to dispatch and downcast
+        #[derive(Debug, Clone, PartialEq)]
         pub enum PlanNodeType {
             $($node_name),*
         }

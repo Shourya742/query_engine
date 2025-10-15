@@ -37,6 +37,10 @@ impl TableCatalog {
     pub fn get_column_by_name(&self, name: &str) -> Option<ColumnCatalog> {
         self.columns.get(name).cloned()
     }
+
+    pub fn get_all_columns(&self) -> Vec<ColumnCatalog> {
+        self.columns.values().cloned().collect()
+    }
 }
 
 pub type ColumnId = String;

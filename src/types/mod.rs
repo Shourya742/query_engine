@@ -1,6 +1,6 @@
 use arrow::datatypes::DataType;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ScalarValue {
     Null,
     Boolean(Option<bool>),

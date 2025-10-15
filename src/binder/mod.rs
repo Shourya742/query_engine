@@ -10,7 +10,7 @@ use crate::{
     catalog::{RootCatalogRef, TableCatalog},
 };
 
-struct Binder {
+pub struct Binder {
     catalog: RootCatalogRef,
     context: BinderContext,
 }

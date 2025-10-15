@@ -1,8 +1,9 @@
-mod dummy;
-mod logical_filter;
-mod logical_project;
-mod logical_table_scan;
-mod plan_node_traits;
+pub mod dummy;
+pub mod logical_filter;
+pub mod logical_project;
+pub mod logical_table_scan;
+pub mod plan_node_traits;
+use std::fmt::Debug;
 
 use std::sync::Arc;
 
@@ -11,7 +12,7 @@ pub use plan_node_traits::*;
 
 /// The common trait over all plan nodes. Used by optimizer framework which will treat all node as `dyn PlanNode`.
 /// Meanwhile, we split the trait into lots of sub-traits so that we can easily use macro to impl them.
-pub trait PlanNode: WithPlanNodeType {
+pub trait PlanNode: WithPlanNodeType + Debug {
     fn schema(&self) -> Vec<ColumnCatalog> {
         vec![]
     }
