@@ -2,17 +2,17 @@ use std::sync::Arc;
 
 use futures_async_stream::try_stream;
 
-use crate::{optimizer::physical_table::PhysicalTableScan, storage::{Storage, Table, Transaction}};
-use arrow::record_batch::RecordBatch;
 use crate::executor::ExecutorError;
-
-
+use crate::{
+    optimizer::physical_table::PhysicalTableScan,
+    storage::{Storage, Table, Transaction},
+};
+use arrow::record_batch::RecordBatch;
 
 pub struct TableScanExecutor<S: Storage> {
     pub plan: PhysicalTableScan,
-    pub storage: Arc<S>
+    pub storage: Arc<S>,
 }
-
 
 impl<S: Storage> TableScanExecutor<S> {
     #[try_stream(boxed, ok = RecordBatch, error = ExecutorError)]
@@ -29,7 +29,7 @@ impl<S: Storage> TableScanExecutor<S> {
                         break;
                     }
                 }
-                Err(err) => return Err(err.into())
+                Err(err) => return Err(err.into()),
             }
         }
     }

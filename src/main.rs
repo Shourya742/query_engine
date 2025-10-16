@@ -3,7 +3,12 @@
 use std::sync::Arc;
 
 use crate::{
-    binder::Binder, executor::{try_collect, ExecutorBuilder}, optimizer::{physical_rewriter::PhysicalRewriter, plan_rewriter::PlanRewriter}, parser::parse, planner::Planner, storage::{CsvStorage, Storage, Table, Transaction}
+    binder::Binder,
+    executor::{try_collect, ExecutorBuilder},
+    optimizer::{physical_rewriter::PhysicalRewriter, plan_rewriter::PlanRewriter},
+    parser::parse,
+    planner::Planner,
+    storage::{CsvStorage, Storage, Table, Transaction},
 };
 use anyhow::Result;
 

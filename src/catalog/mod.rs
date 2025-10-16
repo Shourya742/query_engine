@@ -30,6 +30,8 @@ pub type TableId = String;
 pub struct TableCatalog {
     pub id: TableId,
     pub name: String,
+    /// column ids to keep the order of inferred columns
+    pub column_ids: Vec<ColumnId>,
     pub columns: BTreeMap<ColumnId, ColumnCatalog>,
 }
 
@@ -39,19 +41,22 @@ impl TableCatalog {
     }
 
     pub fn get_all_columns(&self) -> Vec<ColumnCatalog> {
-        self.columns.values().cloned().collect()
+        self.column_ids
+            .iter()
+            .map(|id| self.columns.get(id).cloned().unwrap())
+            .collect()
     }
 }
 
 pub type ColumnId = String;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ColumnCatalog {
     pub id: ColumnId,
     pub desc: ColumnDesc,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ColumnDesc {
     pub name: String,
     pub data_type: DataType,

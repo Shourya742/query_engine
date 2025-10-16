@@ -9,9 +9,9 @@ use crate::{
 #[derive(Debug, Clone)]
 pub struct LogicalProject {
     /// evaluated projection expressions on input PlanRef
-    pub exprs: Vec<BoundExpr>,
+    exprs: Vec<BoundExpr>,
     /// The child PlanRef to be projected
-    pub input: PlanRef,
+    input: PlanRef,
 }
 
 impl LogicalProject {
@@ -21,6 +21,10 @@ impl LogicalProject {
 
     pub fn exprs(&self) -> Vec<BoundExpr> {
         self.exprs.clone()
+    }
+
+    pub fn input(&self) -> PlanRef {
+        self.input.clone()
     }
 }
 

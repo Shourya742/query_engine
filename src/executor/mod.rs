@@ -3,23 +3,25 @@ mod table_scan;
 use arrow::array::RecordBatch;
 use futures::stream::BoxStream;
 
-use crate::{executor::{project::ProjectExecutor, table_scan::TableScanExecutor}, optimizer::{physical_project::PhysicalProject, PlanRef, PlanTreeNode}, storage::{StorageError, StorageImpl}};
-use thiserror::Error;
+use crate::optimizer::plan_visitor::PlanVisitor;
+use crate::{
+    executor::{project::ProjectExecutor, table_scan::TableScanExecutor},
+    optimizer::{physical_project::PhysicalProject, PlanRef, PlanTreeNode},
+    storage::{StorageError, StorageImpl},
+};
 use futures::TryStreamExt;
 use futures_async_stream::try_stream;
-use crate::optimizer::plan_visitor::PlanVisitor;
+use thiserror::Error;
 
 pub type BoxedExecutor = BoxStream<'static, Result<RecordBatch, ExecutorError>>;
 
 pub struct ExecutorBuilder {
-    storage: StorageImpl
+    storage: StorageImpl,
 }
 
 impl ExecutorBuilder {
     pub fn new(storage: StorageImpl) -> Self {
-        Self { 
-            storage
-        }
+        Self { storage }
     }
 
     pub fn build(&mut self, plan: PlanRef) -> BoxedExecutor {
@@ -42,20 +44,20 @@ pub async fn try_collect(mut executor: BoxedExecutor) -> Result<Vec<RecordBatch>
 #[derive(Error, Debug)]
 pub enum ExecutorError {
     #[error("storage error: {0}")]
-    Storage(
-        #[from]
-        StorageError,
-    ),
+    Storage(#[from] StorageError),
 }
 
-
 impl PlanVisitor<BoxedExecutor> for ExecutorBuilder {
-    fn visit_physical_table_scan(&mut self,plan: &crate::optimizer::physical_table::PhysicalTableScan) -> Option<BoxedExecutor> {
+    fn visit_physical_table_scan(
+        &mut self,
+        plan: &crate::optimizer::physical_table::PhysicalTableScan,
+    ) -> Option<BoxedExecutor> {
         Some(match &self.storage {
             StorageImpl::CsvStorage(storage) => TableScanExecutor {
                 plan: plan.clone(),
-                storage: storage.clone()
-            }.execute()
+                storage: storage.clone(),
+            }
+            .execute(),
         })
     }
 
@@ -72,11 +74,20 @@ impl PlanVisitor<BoxedExecutor> for ExecutorBuilder {
     }
 }
 
-
 mod executor_test {
     use std::sync::Arc;
 
-    use crate::{binder::Binder, executor::{try_collect, ExecutorBuilder}, optimizer::{physical_rewriter::PhysicalRewriter, plan_rewriter::PlanRewriter}, parser::parse, planner::Planner, storage::{CsvStorage, Storage, StorageImpl}};
+    use crate::{
+        binder::Binder,
+        executor::{try_collect, ExecutorBuilder},
+        optimizer::{
+            input_ref_rewriter::InputRefRewriter, physical_rewriter::PhysicalRewriter,
+            plan_rewriter::PlanRewriter,
+        },
+        parser::parse,
+        planner::Planner,
+        storage::{CsvStorage, Storage, StorageImpl},
+    };
 
     #[tokio::test]
     async fn test_executor_works() {
@@ -86,7 +97,7 @@ mod executor_test {
         let storage = CsvStorage::default();
         storage.create_table(id.clone(), filepath).unwrap();
 
-        let stmts = parse("select first_name from employee").unwrap();
+        let stmts = parse("select first_name, job_title from employee").unwrap();
 
         let catalog = storage.get_catalog();
         let mut binder = Binder::new(Arc::new(catalog));
@@ -95,8 +106,13 @@ mod executor_test {
         let planner = Planner {};
         let logical_plan = planner.plan(bound_stmt).unwrap();
         println!("logical plan: {logical_plan:#?}");
+
+        let mut input_ref_rewriter = InputRefRewriter::default();
+        let new_logical_plan = input_ref_rewriter.rewrite(logical_plan);
+        println!("new_logical_plan = {:#?}", new_logical_plan);
+
         let mut physical_rewriter = PhysicalRewriter {};
-        let physical_plan = physical_rewriter.rewrite(logical_plan);
+        let physical_plan = physical_rewriter.rewrite(new_logical_plan);
         println!("physical_plan = {physical_plan:#?}");
         let mut builder = ExecutorBuilder::new(StorageImpl::CsvStorage(Arc::new(storage)));
         let executor = builder.build(physical_plan);

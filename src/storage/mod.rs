@@ -9,7 +9,7 @@ use crate::catalog::RootCatalog;
 
 #[derive(Clone)]
 pub enum StorageImpl {
-    CsvStorage(Arc<CsvStorage>)
+    CsvStorage(Arc<CsvStorage>),
 }
 
 pub trait Storage: Sync + Send + 'static {

@@ -7,7 +7,7 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct PhysicalFilter {
-    pub logical: LogicalFilter,
+    logical: LogicalFilter,
 }
 
 impl PhysicalFilter {
