@@ -121,7 +121,7 @@ mod executor_test {
         let storage = CsvStorage::default();
         storage.create_table(id.clone(), filepath).unwrap();
 
-        let stmts = parse("select first_name from employee").unwrap();
+        let stmts = parse("select first_name from employee where id = 1").unwrap();
 
         let catalog = storage.get_catalog();
         let mut binder = Binder::new(Arc::new(catalog));
