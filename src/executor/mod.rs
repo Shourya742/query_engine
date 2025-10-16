@@ -1,10 +1,13 @@
+mod array_compute;
 mod evaluator;
+mod filter;
 mod project;
 mod table_scan;
 use arrow::array::RecordBatch;
 use arrow::error::ArrowError;
 use futures::stream::BoxStream;
 
+use crate::executor::filter::FilterExecutor;
 use crate::optimizer::plan_visitor::PlanVisitor;
 use crate::{
     executor::{project::ProjectExecutor, table_scan::TableScanExecutor},
@@ -69,6 +72,21 @@ impl PlanVisitor<BoxedExecutor> for ExecutorBuilder {
         Some(
             ProjectExecutor {
                 exprs: plan.logical().exprs(),
+                child: self
+                    .visit(plan.children().first().unwrap().clone())
+                    .unwrap(),
+            }
+            .execute(),
+        )
+    }
+
+    fn visit_physical_filter(
+        &mut self,
+        plan: &crate::optimizer::physical_filter::PhysicalFilter,
+    ) -> Option<BoxedExecutor> {
+        Some(
+            FilterExecutor {
+                expr: plan.logical().expr(),
                 child: self
                     .visit(plan.children().first().unwrap().clone())
                     .unwrap(),
