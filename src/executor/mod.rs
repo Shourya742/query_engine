@@ -1,6 +1,8 @@
+mod evaluator;
 mod project;
 mod table_scan;
 use arrow::array::RecordBatch;
+use arrow::error::ArrowError;
 use futures::stream::BoxStream;
 
 use crate::optimizer::plan_visitor::PlanVisitor;
@@ -45,6 +47,8 @@ pub async fn try_collect(mut executor: BoxedExecutor) -> Result<Vec<RecordBatch>
 pub enum ExecutorError {
     #[error("storage error: {0}")]
     Storage(#[from] StorageError),
+    #[error("arrow error: {0}")]
+    Arrow(#[from] ArrowError),
 }
 
 impl PlanVisitor<BoxedExecutor> for ExecutorBuilder {
@@ -77,6 +81,8 @@ impl PlanVisitor<BoxedExecutor> for ExecutorBuilder {
 mod executor_test {
     use std::sync::Arc;
 
+    use arrow::array::StringArray;
+
     use crate::{
         binder::Binder,
         executor::{try_collect, ExecutorBuilder},
@@ -97,7 +103,7 @@ mod executor_test {
         let storage = CsvStorage::default();
         storage.create_table(id.clone(), filepath).unwrap();
 
-        let stmts = parse("select first_name, job_title from employee").unwrap();
+        let stmts = parse("select first_name from employee").unwrap();
 
         let catalog = storage.get_catalog();
         let mut binder = Binder::new(Arc::new(catalog));
@@ -117,6 +123,12 @@ mod executor_test {
         let mut builder = ExecutorBuilder::new(StorageImpl::CsvStorage(Arc::new(storage)));
         let executor = builder.build(physical_plan);
         let output = try_collect(executor).await.unwrap();
+        let a = output[0]
+            .column(0)
+            .as_any()
+            .downcast_ref::<StringArray>()
+            .unwrap();
+        assert_eq!(*a, StringArray::from(vec!["Bill", "Gregg", "John", "Von"]));
         println!("output: {output:#?}");
     }
 }
