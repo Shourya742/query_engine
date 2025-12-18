@@ -15,6 +15,7 @@ pub enum StorageImpl {
 pub trait Storage: Sync + Send + 'static {
     type TableType: Table;
 
+    // currently only support create table by file
     fn create_table(&self, id: String, filepath: String) -> Result<(), StorageError>;
 
     fn get_table(&self, id: String) -> Result<Self::TableType, StorageError>;
