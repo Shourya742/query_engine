@@ -17,21 +17,9 @@ pub struct Binder {
 
 #[derive(Default)]
 struct BinderContext {
+    /// Table name == table id
+    /// table id -> table catalog
     tables: HashMap<String, TableCatalog>,
-}
-
-#[derive(thiserror::Error, Debug)]
-pub enum BindError {
-    #[error("unsupported statement {0}")]
-    UnsupportedStmt(String),
-    #[error("invalid table {0}")]
-    InvalidTable(String),
-    #[error("invalid table name: {0:?}")]
-    InvalidTableName(Vec<Ident>),
-    #[error("invalid column {0}")]
-    InvalidColumn(String),
-    #[error("binary operator types mismatch: {0} != {1}")]
-    BinaryOpTypeMismatch(String, String),
 }
 
 impl Binder {
@@ -51,6 +39,20 @@ impl Binder {
             _ => Err(BindError::UnsupportedStmt(format!("{stmt:?}"))),
         }
     }
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum BindError {
+    #[error("unsupported statement {0}")]
+    UnsupportedStmt(String),
+    #[error("invalid table {0}")]
+    InvalidTable(String),
+    #[error("invalid table name: {0:?}")]
+    InvalidTableName(Vec<Ident>),
+    #[error("invalid column {0}")]
+    InvalidColumn(String),
+    #[error("binary operator types mismatch: {0} != {1}")]
+    BinaryOpTypeMismatch(String, String),
 }
 
 #[cfg(test)]

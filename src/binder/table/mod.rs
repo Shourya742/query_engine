@@ -24,6 +24,7 @@ impl Binder {
     pub fn bind_table_ref(&mut self, table: &TableFactor) -> Result<BoundTableRef, BindError> {
         match table {
             TableFactor::Table { name, alias: _, .. } => {
+                // ObjectName internal items: db.schema.table
                 let (_database, _schema, table) = match name.0.as_slice() {
                     [table] => (
                         DEFAULT_DATABASE_NAME.to_string(),

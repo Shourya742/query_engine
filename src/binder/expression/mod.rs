@@ -13,6 +13,7 @@ pub mod binary_op;
 pub enum BoundExpr {
     Constant(ScalarValue),
     ColumnRef(BoundColumnRef),
+    /// InputRef represents an index of the RecordBatch, which is resolved in optimizer.
     InputRef(BoundInputRef),
     BinaryOp(BoundBinaryOp),
     TypeCast(BoundTypeCast),
@@ -52,17 +53,25 @@ pub struct BoundTypeCast {
 }
 
 impl Binder {
+    /// bind sqlparser Expr into BoundExpr
     pub fn bind_expr(&mut self, expr: &Expr) -> Result<BoundExpr, BindError> {
         match expr {
             Expr::Identifier(ident) => self.bind_column_ref_from_identifiers(&[ident.clone()]),
             Expr::CompoundIdentifier(idents) => self.bind_column_ref_from_identifiers(idents),
             Expr::BinaryOp { left, op, right } => self.bind_binary_op(left, op, right),
             Expr::UnaryOp { op, expr } => todo!(),
-            Expr::Value(v) => Ok(BoundExpr::Constant(v.value.clone().into_string().into())),
+            Expr::Value(v) => Ok(BoundExpr::Constant(v.into())),
             _ => todo!("unsupported expr: {expr:?}"),
         }
     }
 
+    /// bind sqlparser Identifier into BoundExpr
+    ///
+    /// Identifier types:
+    ///     * Identifier(Ident): Identifier e.g. table name or column name
+    ///     * CompoundIdentifier(Vec<Ident>): Multi-part identifier, e.g. `table_alias.column` or
+    ///         `schema.table.col`
+    /// so, the idents slice could be `[col]`, `[table, col]`, or `[schema, table, col]`
     pub fn bind_column_ref_from_identifiers(
         &mut self,
         idents: &[Ident],
@@ -84,7 +93,8 @@ impl Binder {
             Ok(BoundExpr::ColumnRef(BoundColumnRef { column_catalog }))
         } else {
             let mut got_column = None;
-            for (_table_name, table_catalog) in &self.context.tables {
+            for table_catalog in &self.context.tables.values() {
+                // TODO: add ambiguous column check
                 got_column = Some(table_catalog.get_column_by_name(column_name).unwrap());
             }
             let column_catalog =

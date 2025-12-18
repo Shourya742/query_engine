@@ -21,12 +21,14 @@ impl Binder {
             _ => todo!(),
         };
 
+        // currently, only support one table
         let from_table = if select.from.is_empty() {
             None
         } else {
             Some(self.bind_table_with_joins(&select.from[0])?)
         };
 
+        // bind select list
         let mut select_list = vec![];
         for item in &select.projection {
             match item {
@@ -40,6 +42,7 @@ impl Binder {
             }
         }
 
+        // bind where clause
         let where_clause = select
             .selection
             .as_ref()
