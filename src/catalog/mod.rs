@@ -5,25 +5,22 @@ use std::{
 
 use arrow::datatypes::DataType;
 
-pub type RootCatalogRef = Arc<RootCatalog>;
+/// Use column name as id for simplicity
+pub type ColumnId = String;
 
-#[derive(Debug, Clone, Default)]
-pub struct RootCatalog {
-    pub tables: HashMap<TableId, TableCatalog>,
+#[derive(Debug, Clone, PartialEq)]
+pub struct ColumnCatalog {
+    pub id: ColumnId,
+    pub desc: ColumnDesc,
 }
 
-impl RootCatalog {
-    pub fn new() -> Self {
-        Self {
-            tables: HashMap::new(),
-        }
-    }
-
-    pub fn get_table_by_name(&self, name: &str) -> Option<TableCatalog> {
-        self.tables.get(name).cloned()
-    }
+#[derive(Debug, Clone, PartialEq)]
+pub struct ColumnDesc {
+    pub name: String,
+    pub data_type: DataType,
 }
 
+/// use table name as id for simplicity
 pub type TableId = String;
 
 #[derive(Debug, Clone)]
@@ -48,16 +45,21 @@ impl TableCatalog {
     }
 }
 
-pub type ColumnId = String;
+pub type RootCatalogRef = Arc<RootCatalog>;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct ColumnCatalog {
-    pub id: ColumnId,
-    pub desc: ColumnDesc,
+#[derive(Debug, Clone, Default)]
+pub struct RootCatalog {
+    pub tables: HashMap<TableId, TableCatalog>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct ColumnDesc {
-    pub name: String,
-    pub data_type: DataType,
+impl RootCatalog {
+    pub fn new() -> Self {
+        Self {
+            tables: HashMap::new(),
+        }
+    }
+
+    pub fn get_table_by_name(&self, name: &str) -> Option<TableCatalog> {
+        self.tables.get(name).cloned()
+    }
 }
