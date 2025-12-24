@@ -60,7 +60,9 @@ impl Binder {
             Expr::CompoundIdentifier(idents) => self.bind_column_ref_from_identifiers(idents),
             Expr::BinaryOp { left, op, right } => self.bind_binary_op(left, op, right),
             Expr::UnaryOp { op, expr } => todo!(),
-            Expr::Value(v) => Ok(BoundExpr::Constant(v.into())),
+            Expr::Value(v) => Ok(BoundExpr::Constant(
+                v.value.clone().into_string().unwrap().into(),
+            )),
             _ => todo!("unsupported expr: {expr:?}"),
         }
     }
@@ -93,7 +95,7 @@ impl Binder {
             Ok(BoundExpr::ColumnRef(BoundColumnRef { column_catalog }))
         } else {
             let mut got_column = None;
-            for table_catalog in &self.context.tables.values() {
+            for table_catalog in self.context.tables.values() {
                 // TODO: add ambiguous column check
                 got_column = Some(table_catalog.get_column_by_name(column_name).unwrap());
             }

@@ -23,7 +23,7 @@ pub struct CsvStorage {
 impl Storage for CsvStorage {
     type TableType = CsvTable;
 
-    fn create_table(&self, id: String, filepath: String) -> Result<(), StorageError> {
+    fn create_csv_table(&self, id: String, filepath: String) -> Result<(), StorageError> {
         let table = CsvTable::new(id.clone(), filepath, CsvConfig::default())?;
         self.catalog
             .lock()
@@ -32,6 +32,14 @@ impl Storage for CsvStorage {
             .insert(id.clone(), table.catalog.clone());
         self.tables.lock().unwrap().insert(id, table);
         Ok(())
+    }
+
+    fn create_mem_table(
+        &self,
+        id: String,
+        data: Vec<arrow::array::RecordBatch>,
+    ) -> Result<(), StorageError> {
+        unreachable!("csv storage does not support create memory table")
     }
 
     fn get_table(&self, id: String) -> Result<Self::TableType, StorageError> {
@@ -183,7 +191,7 @@ mod tests {
         let id = "test".to_string();
         let filepath = "./tests/yellow_tripdata_2019-01.csv".to_string();
         let storage = CsvStorage::default();
-        storage.create_table(id.clone(), filepath).unwrap();
+        storage.create_csv_table(id.clone(), filepath).unwrap();
         let table = storage.get_table(id.clone()).unwrap();
         let mut tx = table.read().unwrap();
         let batch = tx.next_batch().unwrap();

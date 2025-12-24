@@ -3,20 +3,24 @@ use std::sync::Arc;
 use arrow::{error::ArrowError, record_batch::RecordBatch};
 
 mod csv;
+mod memory;
 pub use csv::*;
 
-use crate::catalog::RootCatalog;
+use crate::{catalog::RootCatalog, storage::memory::InMemoryStorage};
 
 #[derive(Clone)]
 pub enum StorageImpl {
     CsvStorage(Arc<CsvStorage>),
+    InMemoryStorage(Arc<InMemoryStorage>),
 }
 
 pub trait Storage: Sync + Send + 'static {
     type TableType: Table;
 
     // currently only support create table by file
-    fn create_table(&self, id: String, filepath: String) -> Result<(), StorageError>;
+    fn create_csv_table(&self, id: String, filepath: String) -> Result<(), StorageError>;
+
+    fn create_mem_table(&self, id: String, data: Vec<RecordBatch>) -> Result<(), StorageError>;
 
     fn get_table(&self, id: String) -> Result<Self::TableType, StorageError>;
 

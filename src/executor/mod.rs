@@ -9,6 +9,7 @@ use futures::stream::BoxStream;
 
 use crate::executor::filter::FilterExecutor;
 use crate::optimizer::plan_visitor::PlanVisitor;
+use crate::storage;
 use crate::{
     executor::{project::ProjectExecutor, table_scan::TableScanExecutor},
     optimizer::{physical_project::PhysicalProject, PlanRef, PlanTreeNode},
@@ -61,6 +62,11 @@ impl PlanVisitor<BoxedExecutor> for ExecutorBuilder {
     ) -> Option<BoxedExecutor> {
         Some(match &self.storage {
             StorageImpl::CsvStorage(storage) => TableScanExecutor {
+                plan: plan.clone(),
+                storage: storage.clone(),
+            }
+            .execute(),
+            StorageImpl::InMemoryStorage(storage) => TableScanExecutor {
                 plan: plan.clone(),
                 storage: storage.clone(),
             }
@@ -119,7 +125,7 @@ mod executor_test {
 
         let filepath = "./tests/sample.csv".to_string();
         let storage = CsvStorage::default();
-        storage.create_table(id.clone(), filepath).unwrap();
+        storage.create_csv_table(id.clone(), filepath).unwrap();
 
         let stmts = parse("select first_name from employee where id = 1").unwrap();
 

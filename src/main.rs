@@ -31,7 +31,7 @@ async fn main() -> Result<()> {
     let id = "employee".to_string();
     let filepath = "./tests/sample.csv".to_string();
     let storage = CsvStorage::default();
-    storage.create_table(id.clone(), filepath)?;
+    storage.create_csv_table(id.clone(), filepath)?;
     let stats = parse("select first_name from employee where last_name = 'Hopkins'").unwrap();
     let catalog = storage.get_catalog();
     println!("catalog = {:#?}", catalog);
