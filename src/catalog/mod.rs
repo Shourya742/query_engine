@@ -47,9 +47,15 @@ impl TableCatalog {
 
 pub type RootCatalogRef = Arc<RootCatalog>;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct RootCatalog {
     pub tables: HashMap<TableId, TableCatalog>,
+}
+
+impl Default for RootCatalog {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RootCatalog {

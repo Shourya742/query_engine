@@ -24,7 +24,7 @@ pub use plan_node_traits::*;
 
 /// The common trait over all plan nodes. Used by optimizer framework which will treat all node as `dyn PlanNode`.
 /// Meanwhile, we split the trait into lots of sub-traits so that we can easily use macro to impl them.
-pub trait PlanNode: WithPlanNodeType + PlanTreeNode + Debug + Downcast {
+pub trait PlanNode: WithPlanNodeType + PlanTreeNode + Debug + Downcast + Send + Sync {
     fn schema(&self) -> Vec<ColumnCatalog> {
         vec![]
     }

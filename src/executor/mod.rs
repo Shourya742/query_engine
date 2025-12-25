@@ -123,7 +123,7 @@ mod executor_test {
     async fn test_executor_works() {
         let id = "employee".to_string();
 
-        let filepath = "./tests/sample.csv".to_string();
+        let filepath = "./tests/csv/sample.csv".to_string();
         let storage = CsvStorage::default();
         storage.create_csv_table(id.clone(), filepath).unwrap();
 

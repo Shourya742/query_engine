@@ -1,3 +1,4 @@
+#![allow(warnings)]
 use std::{
     collections::{BTreeMap, HashMap},
     fs::File,
@@ -14,10 +15,24 @@ use crate::{
     storage::{Storage, StorageError, Table, Transaction},
 };
 
-#[derive(Default)]
 pub struct CsvStorage {
     catalog: Mutex<RootCatalog>,
     tables: Mutex<HashMap<TableId, CsvTable>>,
+}
+
+impl Default for CsvStorage {
+    fn default() -> Self {
+        CsvStorage::new()
+    }
+}
+
+impl CsvStorage {
+    pub fn new() -> Self {
+        CsvStorage {
+            catalog: Mutex::new(RootCatalog::new()),
+            tables: Mutex::new(HashMap::new()),
+        }
+    }
 }
 
 impl Storage for CsvStorage {
@@ -189,7 +204,7 @@ mod tests {
     #[tokio::test]
     async fn test_csv_storage_works() {
         let id = "test".to_string();
-        let filepath = "./tests/yellow_tripdata_2019-01.csv".to_string();
+        let filepath = "./tests/csv/sample.csv".to_string();
         let storage = CsvStorage::default();
         storage.create_csv_table(id.clone(), filepath).unwrap();
         let table = storage.get_table(id.clone()).unwrap();

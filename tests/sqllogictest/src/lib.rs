@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use query_engine::db::{Database, DatabaseError};
-use query_engine::util::record_batch_to_string;
+use query_engine::utill::record_batch_to_string;
 use sqllogictest::{AsyncDB, Runner};
 
 fn init_tables(db: Arc<Database>) {
