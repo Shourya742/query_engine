@@ -1,19 +1,19 @@
 use std::sync::Arc;
 
 use crate::{
-    binder::expression::{agg_func::BoundAggFunc, BoundExpr},
+    binder::expression::BoundExpr,
     optimizer::{PlanNode, PlanRef, PlanTreeNode},
 };
 
 #[derive(Debug, Clone)]
 pub struct LogicalAgg {
-    agg_funcs: Vec<BoundAggFunc>,
+    agg_funcs: Vec<BoundExpr>,
     group_by: Vec<BoundExpr>,
     input: PlanRef,
 }
 
 impl LogicalAgg {
-    pub fn new(agg_funcs: Vec<BoundAggFunc>, group_by: Vec<BoundExpr>, input: PlanRef) -> Self {
+    pub fn new(agg_funcs: Vec<BoundExpr>, group_by: Vec<BoundExpr>, input: PlanRef) -> Self {
         Self {
             agg_funcs,
             group_by,
@@ -21,7 +21,7 @@ impl LogicalAgg {
         }
     }
 
-    pub fn agg_funcs(&self) -> Vec<BoundAggFunc> {
+    pub fn agg_funcs(&self) -> Vec<BoundExpr> {
         self.agg_funcs.clone()
     }
 

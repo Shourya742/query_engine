@@ -4,9 +4,9 @@ use crate::{
     binder::statement::BoundSelect,
     optimizer::{
         logical_filter::LogicalFilter, logical_project::LogicalProject,
-        logical_table_scan::LogicalTableScan, PlanRef,
+        logical_table_scan::LogicalTableScan, LogicalAgg, PlanRef,
     },
-    planner::{LogicalPlanError, Planner},
+    planner::{util::find_aggregate_exprs, LogicalPlanError, Planner},
 };
 
 impl Planner {
@@ -24,6 +24,12 @@ impl Planner {
 
         if let Some(expr) = stmt.where_clause {
             plan = Arc::new(LogicalFilter::new(expr, plan));
+        }
+
+        let agg = find_aggregate_exprs(&stmt.select_list);
+
+        if !agg.is_empty() {
+            plan = Arc::new(LogicalAgg::new(agg, vec![], plan))
         }
 
         if !stmt.select_list.is_empty() {

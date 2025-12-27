@@ -1,5 +1,6 @@
 use crate::{binder::statement::BoundStatement, optimizer::PlanRef};
 mod select;
+pub mod util;
 
 pub struct Planner {}
 
