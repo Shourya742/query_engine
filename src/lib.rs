@@ -2,6 +2,7 @@
 #![feature(coroutines)]
 #![feature(iterator_try_collect)]
 #![feature(error_generic_member_access)]
+#![feature(assert_matches)]
 
 pub mod binder;
 pub mod catalog;

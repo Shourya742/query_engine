@@ -1,12 +1,16 @@
 use arrow::datatypes::DataType;
 use itertools::Itertools;
-use sqlparser::ast::{BinaryOperator, Expr, Ident};
+use sqlparser::ast::{Expr, Ident};
 
 use crate::{
-    binder::{expression::binary_op::BoundBinaryOp, BindError, Binder},
+    binder::{
+        expression::{agg_func::BoundAggFunc, binary_op::BoundBinaryOp},
+        BindError, Binder,
+    },
     catalog::ColumnCatalog,
     types::ScalarValue,
 };
+pub mod agg_func;
 pub mod binary_op;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -17,6 +21,7 @@ pub enum BoundExpr {
     InputRef(BoundInputRef),
     BinaryOp(BoundBinaryOp),
     TypeCast(BoundTypeCast),
+    AggFunc(BoundAggFunc),
 }
 
 impl BoundExpr {
@@ -29,6 +34,7 @@ impl BoundExpr {
             }
             BoundExpr::BinaryOp(binary_op) => binary_op.return_type.clone(),
             BoundExpr::TypeCast(tc) => Some(tc.cast_type.clone()),
+            BoundExpr::AggFunc(agg) => Some(agg.return_type.clone()),
         }
     }
 }
@@ -59,10 +65,11 @@ impl Binder {
             Expr::Identifier(ident) => self.bind_column_ref_from_identifiers(&[ident.clone()]),
             Expr::CompoundIdentifier(idents) => self.bind_column_ref_from_identifiers(idents),
             Expr::BinaryOp { left, op, right } => self.bind_binary_op(left, op, right),
-            Expr::UnaryOp { op, expr } => todo!(),
+            Expr::UnaryOp { op: _, expr: _ } => todo!(),
             Expr::Value(v) => Ok(BoundExpr::Constant(
                 v.value.clone().into_string().unwrap().into(),
             )),
+            Expr::Function(func) => self.bind_agg_func(func),
             _ => todo!("unsupported expr: {expr:?}"),
         }
     }

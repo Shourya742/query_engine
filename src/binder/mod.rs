@@ -57,12 +57,12 @@ pub enum BindError {
 
 #[cfg(test)]
 mod binder_test {
-    use std::{collections::BTreeMap, sync::Arc};
+    use std::{assert_matches::assert_matches, collections::BTreeMap, sync::Arc};
 
     use arrow::datatypes::DataType;
 
     use crate::{
-        binder::{statement::BoundStatement, Binder},
+        binder::{expression::BoundExpr, statement::BoundStatement, Binder},
         catalog::{ColumnCatalog, ColumnDesc, RootCatalog, TableCatalog},
         parser::parse,
     };
@@ -128,6 +128,20 @@ mod binder_test {
             BoundStatement::Select(select) => {
                 assert_eq!(select.select_list.len(), 1);
                 assert_eq!(select.from_table.is_some(), false);
+            }
+        }
+    }
+
+    #[test]
+    fn test_bind_select_agg_func_works() {
+        let catalog = build_test_catalog();
+        let mut binder = Binder::new(Arc::new(catalog));
+        let stats = parse("select sum(c1), sum(c2) from t1").unwrap();
+        let bound_stmt = binder.bind(&stats[0]).unwrap();
+        match bound_stmt {
+            BoundStatement::Select(select) => {
+                assert_matches!(select.select_list[0], BoundExpr::AggFunc(..));
+                assert_matches!(select.select_list[0], BoundExpr::AggFunc(..));
             }
         }
     }
