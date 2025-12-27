@@ -6,6 +6,8 @@ use crate::optimizer::plan_node::logical_filter::LogicalFilter;
 use crate::optimizer::plan_node::logical_project::LogicalProject;
 use crate::optimizer::plan_node::logical_table_scan::LogicalTableScan;
 use crate::optimizer::plan_node::physical_filter::PhysicalFilter;
+use crate::optimizer::plan_node::LogicalAgg;
+use crate::optimizer::plan_node::PhysicalSimpleAgg;
 use crate::optimizer::PlanRef;
 use crate::optimizer::{PlanNodeType, PlanTreeNode};
 use itertools::Itertools;

@@ -1,13 +1,17 @@
 pub mod dummy;
+pub mod logical_agg;
 pub mod logical_filter;
 pub mod logical_project;
 pub mod logical_table_scan;
 pub mod physical_filter;
 pub mod physical_project;
+pub mod physical_simple_agg;
 pub mod physical_table;
 pub mod plan_node_traits;
+pub use crate::optimizer::logical_agg::*;
 use crate::optimizer::physical_filter::PhysicalFilter;
 use crate::optimizer::physical_project::PhysicalProject;
+pub use crate::optimizer::physical_simple_agg::*;
 use crate::optimizer::physical_table::PhysicalTableScan;
 use crate::optimizer::plan_node::dummy::Dummy;
 use crate::optimizer::plan_node::logical_filter::LogicalFilter;
@@ -47,9 +51,11 @@ macro_rules! for_all_plan_nodes {
             LogicalTableScan,
             LogicalProject,
             LogicalFilter,
+            LogicalAgg,
             PhysicalFilter,
             PhysicalTableScan,
-            PhysicalProject
+            PhysicalProject,
+            PhysicalSimpleAgg
         }
     };
 }

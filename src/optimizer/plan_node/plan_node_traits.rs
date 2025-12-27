@@ -6,6 +6,8 @@ use crate::optimizer::plan_node::logical_filter::LogicalFilter;
 use crate::optimizer::plan_node::logical_project::LogicalProject;
 use crate::optimizer::plan_node::logical_table_scan::LogicalTableScan;
 use crate::optimizer::plan_node::PhysicalFilter;
+use crate::optimizer::LogicalAgg;
+use crate::optimizer::PhysicalSimpleAgg;
 use crate::optimizer::PlanRef;
 
 pub trait WithPlanNodeType {
